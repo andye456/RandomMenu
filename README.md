@@ -19,6 +19,6 @@ This has the following format:
 The Name and category headings are required, the items are optional and you
 can create as many as necessary.
 
-Each item must have a number in from it separated by a ~, e.g. 2\~rice.
+Each item must have a number in front of it separated by a ~, e.g. 2\~rice.
 This number represents the relative position in your supermarket so that the 
-shopping list is printed out in the right order.
+shopping list is printed out in the right order. See the csv example and change as necessary.
