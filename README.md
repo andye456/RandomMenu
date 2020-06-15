@@ -9,6 +9,8 @@ Edit the csv data file in the root of the file structure and add you meals
 along with their ingredients. Each ingredient includes its location in your 
 favorite supermarket.
 
+![Screen Shot](RandomMenu.png)
+
 ## data.csv
 This has the following format:
 
@@ -20,3 +22,4 @@ can create as many as necessary.
 Each item must have a number in from it separated by a ~, e.g. 2\~rice.
 This number represents the relative position in your supermarket so that the 
 shopping list is printed out in the right order.
+
