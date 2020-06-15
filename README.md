@@ -9,6 +9,8 @@ Edit the csv data file in the root of the file structure and add you meals
 along with their ingredients. Each ingredient includes its location in your 
 favorite supermarket.
 
+![Screen Shot](RandomMenu.png)
+
 ## data.csv
 This has the following format:
 
