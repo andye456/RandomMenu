@@ -18,9 +18,9 @@ let main = function () {
     subinputdiv1 = menutable.append('td').append('div').attr('id', 'subinputdiv1').attr('class', 'div').attr('style', 'margin:10px');
     subinputdiv2 = menutable.append('td').append('div').attr('id', 'subinputdiv2').attr('class', 'div').attr('style', 'margin:10px');
 
-
-    outputdiv = main.append('div').attr('id', 'outputdiv').attr('class', 'jumbotron').attr('style', 'margin:60px');
-    listdiv = main.append('div').attr('id', 'listdiv').attr('class', 'continer').attr('style', 'margin:120px; width:300px; ');
+    outputToplevel = main.append('div').attr('id', 'outputToplevel').attr('class', 'jumbotron').attr('style', 'margin:60px');
+    outputdiv = outputToplevel.append('div').attr('id', 'outputdiv').attr('class', 'jumbotron');
+    listdiv = outputToplevel.append('div').attr('id', 'listdiv').attr('class', 'continer').attr('style', 'width:300px; ');
     // initialise the shopping list array
     shopping_list = [];
     // reads in the contents of the csv file into d
@@ -55,9 +55,11 @@ let main = function () {
                 // Remove the menu table, clear the shopping list & re-read the csv file.
                 d3.select('#main_table').remove();
                 outputdiv.append('table').attr("class", "table").attr('id', 'main_table');
-                first=true; // This is so the table is recreated with headers (first line in csv)
-                shopping_list=[];
-                d3.csv('data.csv', function (x) { d = x;});
+                first = true; // This is so the table is recreated with headers (first line in csv)
+                shopping_list = [];
+                d3.csv('data.csv', function (x) {
+                    d = x;
+                });
             });
 
         /* This bit provides a table of the categories so you can add a meal from a single category */
@@ -151,25 +153,14 @@ let add_to_menu = (d, cat) => {
     });
 
 
-    if (document.getElementById('menubutton') == null) {
-        subinputdiv1.append('input')
-            .attr('type', 'button')
-            .attr('class', 'btn btn-warning')
-            .attr('value', 'Print Menu')
-            .attr('id', 'menubutton')
-            .on('click', () => {
-                PrintElem('outputdiv');
-            });
-    }
-
     return d;
 
 }
 
 // Generates the shopping list from the list that is passed in
 let create_shopping_list = list => {
-
-    let table = listdiv.append('table').attr("class", "table").attr('id', 'list_table').attr("style", "font-size:9px");
+    listdiv.append('h2').text("Shopping List")
+    let table = listdiv.append('table').attr("class", "table").attr('id', 'list_table').attr("style", "font-size:10px");
     let thead = table.append('thead');
 
     list_vals = [];
@@ -203,9 +194,9 @@ let create_shopping_list = list => {
     subinputdiv1.append('input')
         .attr('type', 'button')
         .attr('class', 'btn btn-warning')
-        .attr('value', 'Print Shopping List')
+        .attr('value', 'Print Menu & List')
         .on('click', () => {
-            PrintElem('listdiv');
+            PrintElem('outputToplevel');
         });
 
 };
@@ -269,20 +260,59 @@ var tabulate = function (data, columns) {
                     }
                 }
             });
+        rows.selectAll("td.button")
+            .data(d => [result[0]])
+            .enter()
+            .append('td')
+            .attr('class', 'button')
+            .append('button')
+            .text(d => {
+                return 'X'
+            })
+            .on('click', d => remove_row(d))
+        ;
     } catch (err) {
         d3.select('#subinputdiv1')
             .append('p')
-            .text("No more meals in dataabse");
+            .text("No more meals in dataabse " + err);
     }
 
 }
 
-// Pops a widow up to print the contents of a div
+function remove_row(item_name) {
+    // removes item from shopping list, doesn't put them back in the menu selection
+    shopping_list.forEach(x => {
+        for (let i = 0; i < shopping_list.length; i++) {
+            if (item_name == shopping_list[i].Name) {
+                // removing it from available selection.
+                shopping_list.splice(i, 1);
+                break;
+            }
+        }
+    });
+    var table = d3.selectAll('#main_table tr')
+        .each(function () {
+            that=this;
+            d3.select(this).select("td").each(function (x) {
+                if (x == item_name) {
+                    console.log("td " + x);
+                    d3.select(that).remove();
+                }
+            });
+        });
+
+
+}
+
+// Pops a widow up to print and save the contents of a div
 function PrintElem(elem) {
+
     var mywindow = window.open('', 'PRINT', 'height=400,width=600');
 
-    mywindow.document.write('<html><head><title>' + document.title + '</title>');
+    mywindow.document.write('<html><head><title>Menu</title>');
     mywindow.document.write('<style>tr {border-bottom:1px #808080 solid}</style>');
+    mywindow.document.write('<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>');
+    mywindow.document.write('<link rel="stylesheet" href="css/menu.css">');
     mywindow.document.write('</head><body >');
     mywindow.document.write('<h1>' + document.title + '</h1>');
     mywindow.document.write(document.getElementById(elem).innerHTML);
@@ -293,6 +323,20 @@ function PrintElem(elem) {
 
     mywindow.print();
     mywindow.close();
+    download(elem);
 
     return true;
+}
+
+function download(exp_id) {
+    var dt = new Date();
+    var time = dt.getFullYear() + "_" + dt.getMonth() + "_" + dt.getDay() + "_" + dt.getHours() + ":" + dt.getMinutes() + ":" + dt.getSeconds();
+    var a = document.body.appendChild(
+        document.createElement("a")
+    );
+    export_file = "export_" + time + ".html"
+    a.download = export_file;
+    a.href = "data:text/html," + document.getElementById(exp_id).innerHTML;
+    a.click();
+    alert("Menu written to: " + export_file)
 }
