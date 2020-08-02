@@ -18,9 +18,9 @@ let main = function () {
     subinputdiv1 = menutable.append('td').append('div').attr('id', 'subinputdiv1').attr('class', 'div').attr('style', 'margin:10px');
     subinputdiv2 = menutable.append('td').append('div').attr('id', 'subinputdiv2').attr('class', 'div').attr('style', 'margin:10px');
 
-    outputToplevel = main.append('div').attr('id', 'outputToplevel').attr('class', 'jumbotron').attr('style', 'margin:60px');
+    outputToplevel = main.append('div').attr('id', 'outputToplevel').attr('class', 'jumbotron').attr('style', 'margin:60px; padding:0');
     outputdiv = outputToplevel.append('div').attr('id', 'outputdiv').attr('class', 'jumbotron');
-    listdiv = outputToplevel.append('div').attr('id', 'listdiv').attr('class', 'continer').attr('style', 'width:300px; ');
+    listdiv = outputToplevel.append('div').attr('id', 'listdiv').attr('class', 'continer').attr('style', 'width:300px;padding-left:40px;padding-bottom:40px');
     // initialise the shopping list array
     shopping_list = [];
     // reads in the contents of the csv file into d
@@ -159,7 +159,19 @@ let add_to_menu = (d, cat) => {
 
 // Generates the shopping list from the list that is passed in
 let create_shopping_list = list => {
-    listdiv.append('h2').text("Shopping List")
+    // remove the existing shopping list if it exists
+    d3.select('#shopping_list_title')
+        .each(function () {
+            this.remove();
+        });
+    // Add shopping list title
+    listdiv.append('h2').text("Shopping List").attr("id", "shopping_list_title");
+
+    d3.select('#list_table')
+        .each(function () {
+            this.remove();
+        });
+    // add the list
     let table = listdiv.append('table').attr("class", "table").attr('id', 'list_table').attr("style", "font-size:10px");
     let thead = table.append('thead');
 
@@ -190,8 +202,12 @@ let create_shopping_list = list => {
         });
 
     // Adds the print buttons to the divs when the shopping list is created
-
+    d3.select('#print_button')
+        .each(function () {
+            this.remove();
+        });
     subinputdiv1.append('input')
+        .attr('id','print_button')
         .attr('type', 'button')
         .attr('class', 'btn btn-warning')
         .attr('value', 'Print Menu & List')
@@ -290,12 +306,15 @@ function remove_row(item_name) {
             }
         }
     });
+    // OMG this is so confusing.....
+    // This selects all the table rows from #main_table
     var table = d3.selectAll('#main_table tr')
         .each(function () {
-            that=this;
+            // Saves the tr in the variable that.
+            that = this;
+            // loops through each of the tr values, if the cell text matches the item_name then remove 'that' the reference to the row.
             d3.select(this).select("td").each(function (x) {
                 if (x == item_name) {
-                    console.log("td " + x);
                     d3.select(that).remove();
                 }
             });
