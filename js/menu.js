@@ -39,19 +39,37 @@ let main = function () {
             .attr('value', 'Add')
             .on('click', () => {
                 d = add_to_menu(d, "");
-            }); // end on click
-        inputform.append('input')
-            .attr('type', 'button')
-            .attr('class', 'btn btn-success')
-            .attr('value', 'Shopping List')
-            .on('click', () => {
                 create_shopping_list(shopping_list);
-            });
+
+            }); // end on click
+        // inputform.append('input')
+        //     .attr('type', 'button')
+        //     .attr('class', 'btn btn-success')
+        //     .attr('value', 'Shopping List')
+        //     .on('click', () => {
+        //         create_shopping_list(shopping_list);
+        //     });
         inputform.append('input')
             .attr('type', 'button')
             .attr('class', 'btn btn-success')
             .attr('value', 'Clear All')
             .on('click', () => {
+                // remove the existing shopping list if it exists
+                d3.select('#shopping_list_title')
+                    .each(function () {
+                        this.remove();
+                    });
+                d3.select('#list_table')
+                    .each(function () {
+                        this.remove();
+                    });
+                d3.select('#print_button')
+                    .each(function () {
+                        this.remove();
+                    });
+                // d3.select('#count')
+                //     .attr('value','1');
+                $('#count').val('1')
                 // Remove the menu table, clear the shopping list & re-read the csv file.
                 d3.select('#main_table').remove();
                 outputdiv.append('table').attr("class", "table").attr('id', 'main_table');
@@ -91,7 +109,10 @@ let main = function () {
             .attr('class', 'btn btn-primary')
             .attr('value', 'Add')
             .text(x => "Add")
-            .on('click', x => add_to_menu(d, x));
+            .on('click', x => {
+                add_to_menu(d, x);
+                create_shopping_list(shopping_list);
+            });
 
     }); // end csv input
 } // end main function
@@ -207,7 +228,7 @@ let create_shopping_list = list => {
             this.remove();
         });
     subinputdiv1.append('input')
-        .attr('id','print_button')
+        .attr('id', 'print_button')
         .attr('type', 'button')
         .attr('class', 'btn btn-warning')
         .attr('value', 'Print Menu & List')
@@ -280,11 +301,10 @@ var tabulate = function (data, columns) {
             .data(d => [result[0]])
             .enter()
             .append('td')
-            .attr('class', 'button')
-            .append('button')
-            .text(d => {
-                return 'X'
-            })
+            .append('input')
+            .attr('type', 'button')
+            .attr('class', 'btn btn-danger')
+            .attr('value', 'X')
             .on('click', d => remove_row(d))
         ;
     } catch (err) {
@@ -316,6 +336,8 @@ function remove_row(item_name) {
             d3.select(this).select("td").each(function (x) {
                 if (x == item_name) {
                     d3.select(that).remove();
+                    create_shopping_list(shopping_list);
+
                 }
             });
         });
